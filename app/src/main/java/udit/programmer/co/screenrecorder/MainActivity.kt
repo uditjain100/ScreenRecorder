@@ -1,6 +1,7 @@
 package udit.programmer.co.screenrecorder
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -16,6 +17,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.util.DisplayMetrics
+import android.util.Log
 import android.util.SparseIntArray
 import android.view.Surface
 import android.view.View
@@ -39,11 +41,11 @@ class MainActivity : AppCompatActivity() {
     private var mediaProjectionCallback: MediaProjectionCallback? = null
     private var mediaRecorder: MediaRecorder? = null
 
-    internal var videoUri: String = ""
+    private var videoUri: String = ""
 
     companion object {
-        private val REQUEST_CODE = 1000
-        private val REQUEST_PERMISSION = 1001
+        private const val REQUEST_CODE = 1000
+        private const val REQUEST_PERMISSION = 1001
         private var DISPLAY_WIDTH = 700
         private var DISPLAY_HEIGHT = 1200
         private val ORIENTATION = SparseIntArray()
@@ -157,7 +159,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun startRecording(view: View?) {
-        if ((view as ToggleButton) != null) {
+        if ((view as ToggleButton).isChecked) {
             initRecorder()
             shareScreen()
         } else {
@@ -172,7 +174,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun shareScreen() {
-        if (mediaProjection != null) {
+        if (mediaProjection == null) {
             startActivityForResult(projectManager!!.createScreenCaptureIntent(), REQUEST_CODE)
             return
         }
@@ -210,13 +212,12 @@ class MainActivity : AppCompatActivity() {
         return super.onActivityResult(requestCode, resultCode, data)
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun initRecorder() {
         try {
-
             mediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
             mediaRecorder!!.setVideoSource(MediaRecorder.VideoSource.SURFACE)
             mediaRecorder!!.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-
             videoUri =
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                     .toString() +
